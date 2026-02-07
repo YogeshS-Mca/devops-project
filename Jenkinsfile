@@ -3,27 +3,33 @@ pipeline {
 
     stages {
 
-        stage('Clone') {
+        stage('Checkout') {
             steps {
-                echo 'Code cloned from GitHub'
+                checkout scm
             }
         }
 
-        stage('Build') {
+        stage('Remove Old Container') {
             steps {
-                echo 'Build started'
+                sh 'docker rm -f devops-site || true'
             }
         }
 
-        stage('Test') {
+        stage('Remove Old Image') {
             steps {
-                echo 'Testing application'
+                sh 'docker rmi devops-website || true'
             }
         }
 
-        stage('Deploy') {
+        stage('Build Image') {
             steps {
-                echo 'Deploying application'
+                sh 'docker build -t devops-website .'
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                sh 'docker run -d -p 8081:80 --name devops-site devops-website'
             }
         }
     }
